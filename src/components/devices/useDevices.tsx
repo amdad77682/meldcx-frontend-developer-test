@@ -8,20 +8,27 @@ interface Idevices {
 
 export default function useDevices(): {
   devices: Idevices[];
+  loadingDevices: boolean;
   logout: () => void;
   notify: () => void;
 } {
   const [devices, setDevices] = React.useState<Idevices[]>([]);
+  const [loadingDevices, setLoadingDevices] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     let interval;
-    const initApiAll = () => {
+    const apiCall = async () => {
+      const res = await getDevicesAction();
+      setDevices(res.data.devices);
+      setLoadingDevices(false);
+    };
+    const initInterval = () => {
+      apiCall();
       interval = setInterval(async () => {
-        const res = await getDevicesAction();
-        setDevices(res.data.devices);
+        apiCall();
       }, 5000);
     };
-    initApiAll();
+    initInterval();
     return () => {
       clearInterval(interval);
     };
@@ -31,14 +38,20 @@ export default function useDevices(): {
     window.location.href = "/login";
   };
   const notify = async () => {
-    const reqbody = {
-      name: "Md Amdadul Haque",
-      email: "amdad77682@gmail.com",
-      repoUrl: "https://github.com/amdad77682/meldcx-frontend-developer-test",
-      message: "",
-    };
-    await notifyDone(reqbody);
-    window.location.href = "/login";
+    try {
+      const reqbody = {
+        name: "Md Amdadul Haque",
+        email: "amdad77682@gmail.com",
+        repoUrl: "https://github.com/amdad77682/meldcx-frontend-developer-test",
+        message:
+          "Hello! it is my great pleasure to know that i had completed the task. The submitted task is found in defined repoUrl https://github.com/amdad77682/meldcx-frontend-developer-test",
+      };
+      await notifyDone(reqbody);
+      cleanToken();
+      window.location.href = "/login";
+    } catch (err) {
+      console.log(err);
+    }
   };
-  return { devices, logout, notify };
+  return { devices, loadingDevices, logout, notify };
 }

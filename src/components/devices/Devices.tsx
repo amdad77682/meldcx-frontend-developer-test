@@ -1,15 +1,10 @@
 import React from "react";
 import "styled-components/macro";
-import { keyframes } from "styled-components";
+
 import useDevices from "./useDevices";
 
-const Rotate = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg);}
-`;
-
 export default function Devices() {
-  const { devices, logout } = useDevices();
+  const { devices, loadingDevices, notify, logout } = useDevices();
 
   return (
     <div
@@ -64,11 +59,19 @@ export default function Devices() {
             transform: translateY(-50%) translateX(-50%);
           `}
         >
-          <h1 className="text-6xl font-thin leading-none">{devices.length}</h1>
-          <h4 className="uppercase leading-none">
-            Devices <br />
-            Online
-          </h4>
+          {loadingDevices ? (
+            <h1 className="text-6xl font-thin leading-none">Loading...</h1>
+          ) : (
+            <>
+              <h1 className="text-6xl font-thin leading-none">
+                {devices.length}
+              </h1>
+              <h4 className="uppercase leading-none">
+                Devices <br />
+                Online
+              </h4>
+            </>
+          )}
         </div>
       </div>
       {devices.length > 5 ? (
@@ -104,7 +107,10 @@ export default function Devices() {
       ) : null}
       <div className="absolute bottom-0 p-4  bg-transparent w-full">
         <div className="flex items-center justify-center">
-          <button className=" px-4 py-2 mr-4 rounded-md bg-white ">
+          <button
+            onClick={notify}
+            className=" px-4 py-2 mr-4 rounded-md bg-white "
+          >
             Notify
           </button>
           <button
